@@ -15,12 +15,14 @@
     display: block;
     margin: 0 auto;
     background-color: #2E8B57;
+    z-index: 0;
   }
   #menu {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    z-index: 10;
   }
   button {
     font-size: 20px;
@@ -50,13 +52,17 @@ let botSpeed = 3;
 let lastElastico = 0;
 let elasticoCooldown = 30000; // 30 seconds
 let goalkeeper = { x: 750, y: 270, width: 40, height: 60, speed: 4 };
-
 const numBots = 3;
 const keys = {};
+let mouseDown = false;
 
+// Input listeners
 document.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
 document.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+document.addEventListener('mousedown', () => mouseDown = true);
+document.addEventListener('mouseup', () => mouseDown = false);
 
+// Initialize bots
 function initBots() {
   bots = [];
   for (let i = 0; i < numBots; i++) {
@@ -72,15 +78,10 @@ document.getElementById('playBtn').addEventListener('click', () => {
 });
 
 document.getElementById('difficultyBtn').addEventListener('click', () => {
-  if (difficulty === "easy") {
-    difficulty = "medium"; botSpeed = 4;
-  } else if (difficulty === "medium") {
-    difficulty = "hard"; botSpeed = 5;
-  } else if (difficulty === "hard") {
-    difficulty = "nightmare"; botSpeed = 6;
-  } else {
-    difficulty = "easy"; botSpeed = 3;
-  }
+  if (difficulty === "easy") { difficulty = "medium"; botSpeed = 4; }
+  else if (difficulty === "medium") { difficulty = "hard"; botSpeed = 5; }
+  else if (difficulty === "hard") { difficulty = "nightmare"; botSpeed = 6; }
+  else { difficulty = "easy"; botSpeed = 3; }
   document.getElementById('difficultyBtn').innerText = "Difficulty: " + difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 });
 
@@ -112,7 +113,7 @@ function gameLoop() {
     }
 
     // Shooting
-    if (keys['2'] && keys['mouse1']) {
+    if (keys['2'] && mouseDown) {
       console.log("Shot Move!");
     }
 
@@ -155,6 +156,8 @@ function gameLoop() {
       console.log("Goalkeeper saved!");
     } else if (ball.x + ball.radius > canvas.width) {
       console.log("Goal!");
+      ball.x = canvas.width/2; // reset ball
+      ball.y = canvas.height/2;
     }
   }
 
